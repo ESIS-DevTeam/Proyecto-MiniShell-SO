@@ -1,5 +1,6 @@
 #include "shell.h"
 #include "parser.h"
+#include "config.h"
 #include "executor.h"
 #include "builtins.h"
 #include "utils.h"
@@ -59,15 +60,11 @@ void Shell::run() {
 }
 
 void Shell::displayPrompt() {
-    std::string user = Utils::getUsername();
-    std::string host = Utils::getHostname();
     std::string cwd = Utils::getCurrentDirectory();
-    
-    std::cout << COLOR_GREEN << user << "@" << host 
-              << COLOR_RESET << ":" 
-              << COLOR_BLUE << cwd 
-              << COLOR_YELLOW << " $ " 
-              << COLOR_RESET;
+
+    std::cout << COLOR_CYAN << "Mini-Shell-ESIS" << COLOR_RESET << ":"
+              << COLOR_BLUE << cwd << COLOR_RESET
+              << COLOR_YELLOW << " $ " << COLOR_RESET;
     std::cout.flush();
 }
 
@@ -83,7 +80,11 @@ std::string Shell::readInput() {
 }
 
 void Shell::addToHistory(const std::string& command) {
-    if (command.empty() || command == history.back()) {
+    if (command.empty()) {
+        return;
+    }
+
+    if (!history.empty() && command == history.back()) {
         return;
     }
     
@@ -96,7 +97,7 @@ void Shell::addToHistory(const std::string& command) {
 }
 
 void Shell::saveHistory() {
-    std::ofstream file(".mini_shell_history");
+    std::ofstream file(Config::HISTORY_FILE);
     if (file.is_open()) {
         for (const auto& cmd : history) {
             file << cmd << "\n";
@@ -106,7 +107,7 @@ void Shell::saveHistory() {
 }
 
 void Shell::loadHistory() {
-    std::ifstream file(".mini_shell_history");
+    std::ifstream file(Config::HISTORY_FILE);
     if (file.is_open()) {
         std::string line;
         while (std::getline(file, line) && history.size() < MAX_HISTORY) {

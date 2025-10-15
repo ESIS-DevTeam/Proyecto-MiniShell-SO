@@ -31,23 +31,72 @@ std::vector<std::string> Parser::tokenize(const std::string& input) {
     std::vector<std::string> tokens;
     std::string current;
     bool inQuotes = false;
-    
-    for (size_t i = 0; i < input.length(); i++) {
+    char quoteChar = '\0';
+
+    for (size_t i = 0; i < input.length(); ) {
         char c = input[i];
-        
-        if (c == '"' || c == '\'') {
-            inQuotes = !inQuotes;
+
+        // Manejar escapes: \x -> x
+        if (c == '\\') {
+            if (i + 1 < input.length()) {
+                current += input[i+1];
+                i += 2;
+                continue;
+            } else {
+                // Trailing backslash, ignóralo
+                i++;
+                continue;
+            }
+        }
+
+        // Entrar/salir de comillas
+        if (!inQuotes && (c == '"' || c == '\'')) {
+            inQuotes = true;
+            quoteChar = c;
+            i++;
+            continue;
+        } else if (inQuotes && c == quoteChar) {
+            inQuotes = false;
+            quoteChar = '\0';
+            i++;
             continue;
         }
-        
-        if (!inQuotes && (c == ' ' || c == '\t')) {
-            if (!current.empty()) {
-                tokens.push_back(current);
-                current.clear();
-            }
-        } else {
+
+        if (inQuotes) {
+            // Dentro de comillas, todo es literal (ya manejamos escapes)
             current += c;
+            i++;
+            continue;
         }
+
+        // No en comillas: manejar operadores pegados y espacios
+        // Detectar >> primero
+        if (i + 1 < input.length() && input[i] == '>' && input[i+1] == '>') {
+            if (!current.empty()) { tokens.push_back(current); current.clear(); }
+            tokens.push_back(">>");
+            i += 2;
+            continue;
+        }
+
+        // Operadores de un solo caracter
+        if (c == '|' || c == '>' || c == '<' || c == '&') {
+            if (!current.empty()) { tokens.push_back(current); current.clear(); }
+            std::string op(1, c);
+            tokens.push_back(op);
+            i++;
+            continue;
+        }
+
+        // Separador
+        if (c == ' ' || c == '\t' || c == '\n' || c == '\r') {
+            if (!current.empty()) { tokens.push_back(current); current.clear(); }
+            i++;
+            continue;
+        }
+
+        // Caracter normal
+        current += c;
+        i++;
     }
     
     if (!current.empty()) {

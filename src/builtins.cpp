@@ -110,13 +110,22 @@ int BuiltinCommands::help(const std::vector<std::string>& args) {
 }
 
 int BuiltinCommands::history(const std::vector<std::string>& args) {
-    // Acceder al historial del shell
-    // Nota: Necesitarías hacer público el vector history en Shell
-    // o crear un método getHistory()
-    
     std::cout << COLOR_CYAN << "Historial de comandos:" << COLOR_RESET << "\n";
-    std::cout << "(Funcionalidad limitada - implementar acceso al historial)\n";
-    
+    if (shell == nullptr) {
+        std::cout << "(No hay acceso al shell)\n";
+        return 1;
+    }
+
+    const std::vector<std::string>& hist = shell->getHistory();
+    if (hist.empty()) {
+        std::cout << "(Historial vacío)\n";
+        return 0;
+    }
+
+    for (size_t i = 0; i < hist.size(); ++i) {
+        std::cout << i + 1 << ": " << hist[i] << std::endl;
+    }
+
     return 0;
 }
 

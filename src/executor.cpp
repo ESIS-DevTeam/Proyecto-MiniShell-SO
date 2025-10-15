@@ -192,19 +192,30 @@ std::string Executor::resolvePath(const std::string& command) {
         }
         return "";
     }
-    
-    // Buscar en /bin
+    // Si PATH está definido, buscar en cada entrada
+    const char* pathEnv = getenv("PATH");
+    if (pathEnv != nullptr) {
+        std::string pathStr(pathEnv);
+        std::vector<std::string> parts = Utils::split(pathStr, ':');
+        for (const auto& p : parts) {
+            std::string cand = p + "/" + command;
+            if (fileExists(cand)) {
+                return cand;
+            }
+        }
+    }
+
+    // Fallback a /bin y /usr/bin por compatibilidad
     std::string binPath = "/bin/" + command;
     if (fileExists(binPath)) {
         return binPath;
     }
-    
-    // Buscar en /usr/bin
+
     std::string usrBinPath = "/usr/bin/" + command;
     if (fileExists(usrBinPath)) {
         return usrBinPath;
     }
-    
+
     return "";
 }
 

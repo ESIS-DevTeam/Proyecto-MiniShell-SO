@@ -22,6 +22,7 @@ public:
     void addToHistory(const std::string& command);
     void saveHistory();
     void loadHistory();
+    const std::vector<std::string>& getHistory() const { return history; }
     bool isRunning() const { return running; }
     void stop() { running = false; }
 };

@@ -10,7 +10,7 @@ int main(int argc, char* argv[]) {
     // Banner de bienvenida
     std::cout << COLOR_CYAN << COLOR_BOLD;
     std::cout << "╔════════════════════════════════════════╗\n";
-    std::cout << "║        MINI-SHELL v1.0.0               ║\n";
+        std::cout << "║      Mini-Shell-ESIS v1.0.0            ║\n";
     std::cout << "║   Sistema Operativos - UNJBG           ║\n";
     std::cout << "╚════════════════════════════════════════╝\n";
     std::cout << COLOR_RESET << std::endl;
